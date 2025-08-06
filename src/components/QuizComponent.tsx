@@ -1,0 +1,123 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { QuizState, QuizSettings } from '@/types/quiz';
+import { QuizGenerator, calculateScore, getScoreGrade } from '@/utils/quiz';
+import { QuizCard } from './QuizCard';
+import { QuizResults } from './QuizResults';
+import { QuizProgress } from './QuizProgress';
+
+interface QuizComponentProps {
+  settings: QuizSettings;
+  onQuizComplete: (results: QuizState) => void;
+  onRestart: () => void;
+}
+
+export function QuizComponent({ settings, onQuizComplete, onRestart }: QuizComponentProps) {
+  const [quizState, setQuizState] = useState<QuizState>({
+    currentQuestion: 0,
+    score: 0,
+    questions: [],
+    answers: [],
+    isCompleted: false,
+    startTime: new Date()
+  });
+
+  useEffect(() => {
+    const generateQuestions = async () => {
+      try {
+        const questions = await QuizGenerator.generateQuiz(settings);
+        setQuizState(prev => ({
+          ...prev,
+          questions,
+          startTime: new Date()
+        }));
+      } catch (error) {
+        console.error('Error generating quiz questions:', error);
+        // Fallback to empty state or show error message
+      }
+    };
+
+    generateQuestions();
+  }, [settings]);
+
+  const handleAnswer = (answer: string) => {
+    const currentQuestion = quizState.questions[quizState.currentQuestion];
+    const isCorrect = answer === currentQuestion.correctAnswer;
+    
+    const newAnswer = {
+      questionId: currentQuestion.id,
+      userAnswer: answer,
+      isCorrect
+    };
+
+    const newAnswers = [...quizState.answers, newAnswer];
+    const newScore = isCorrect ? quizState.score + 1 : quizState.score;
+    const nextQuestion = quizState.currentQuestion + 1;
+    
+    if (nextQuestion >= quizState.questions.length) {
+      // Quiz completed
+      const finalState = {
+        ...quizState,
+        answers: newAnswers,
+        score: newScore,
+        isCompleted: true,
+        endTime: new Date()
+      };
+      setQuizState(finalState);
+      onQuizComplete(finalState);
+    } else {
+      // Move to next question
+      setQuizState(prev => ({
+        ...prev,
+        currentQuestion: nextQuestion,
+        score: newScore,
+        answers: newAnswers
+      }));
+    }
+  };
+
+  if (quizState.questions.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Generating quiz questions...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (quizState.isCompleted) {
+    const scorePercentage = calculateScore(quizState.questions.length, quizState.score);
+    const grade = getScoreGrade(scorePercentage);
+    
+    return (
+      <QuizResults
+        quizState={quizState}
+        scorePercentage={scorePercentage}
+        grade={grade}
+        onRestart={onRestart}
+      />
+    );
+  }
+
+  const currentQuestion = quizState.questions[quizState.currentQuestion];
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <QuizProgress
+        current={quizState.currentQuestion + 1}
+        total={quizState.questions.length}
+        score={quizState.score}
+      />
+      
+      <QuizCard
+        question={currentQuestion}
+        onAnswer={handleAnswer}
+        questionNumber={quizState.currentQuestion + 1}
+        totalQuestions={quizState.questions.length}
+      />
+    </div>
+  );
+}
