@@ -62,7 +62,7 @@ export function StateQuizComponent({ quizState: initialQuizState, onQuizComplete
       timeSpent: timeLeft ? (quizState.settings.timeLimit || 30) - timeLeft : undefined,
     };
 
-    const newScore = quizState.score + (isCorrect ? currentQuestion.points : 0);
+    const newScore = quizState.score + (isCorrect ? (currentQuestion.points || 1) : 0);
     
     const updatedQuizState = {
       ...quizState,

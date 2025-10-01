@@ -25,17 +25,20 @@ export interface Question {
 
 export interface QuizQuestion {
   id: string;
-  type: 'flag-to-country' | 'country-to-flag' | 'capital-to-country' | 'map-location' | 'map-to-country';
+  type: 'flag-to-country' | 'country-to-flag' | 'capital-to-country' | 'map-location' | 'map-to-country' | 'multiple-choice' | 'true-false' | 'fill-in-blank';
   question: string;
   options: string[];
   correctAnswer: string;
-  country: Country;
+  country?: Country;
   difficulty: 'easy' | 'medium' | 'hard';
+  points?: number;
+  explanation?: string;
+  category?: string;
 }
 
 export interface QuizState {
   settings: QuizSettings;
-  questions: Question[];
+  questions: QuizQuestion[];
   currentQuestionIndex: number;
   answers: { questionId: string; userAnswer: string; isCorrect: boolean; timeSpent?: number }[];
   score: number;

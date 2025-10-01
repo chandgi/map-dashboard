@@ -84,7 +84,9 @@ export class QuizGenerator {
       options: allOptions,
       correctAnswer: country.name,
       country: country,
-      difficulty: difficulty as 'easy' | 'medium' | 'hard'
+      difficulty: difficulty as 'easy' | 'medium' | 'hard',
+      points: difficulty === 'easy' ? 1 : difficulty === 'medium' ? 2 : 3,
+      explanation: `This is the flag of ${country.name}.`
     };
   }
 
@@ -99,7 +101,9 @@ export class QuizGenerator {
       options: allOptions,
       correctAnswer: country.capital,
       country: country,
-      difficulty: difficulty as 'easy' | 'medium' | 'hard'
+      difficulty: difficulty as 'easy' | 'medium' | 'hard',
+      points: difficulty === 'easy' ? 1 : difficulty === 'medium' ? 2 : 3,
+      explanation: `The capital of ${country.name} is ${country.capital}.`
     };
   }
 
@@ -114,7 +118,9 @@ export class QuizGenerator {
       options: allOptions,
       correctAnswer: country.name,
       country: country,
-      difficulty: difficulty as 'easy' | 'medium' | 'hard'
+      difficulty: difficulty as 'easy' | 'medium' | 'hard',
+      points: difficulty === 'easy' ? 1 : difficulty === 'medium' ? 2 : 3,
+      explanation: `This map shows ${country.name}.`
     };
   }
 

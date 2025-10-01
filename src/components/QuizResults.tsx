@@ -69,7 +69,7 @@ export function QuizResults({ quizState, scorePercentage, grade, onRestart }: Qu
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium">
-                        Q{index + 1}: {question.country.name}
+                        Q{index + 1}: {question.country?.name || question.question.substring(0, 30) + '...'}
                       </span>
                       <span className={`text-sm font-semibold ${
                         answer.isCorrect ? 'text-green-600' : 'text-red-600'

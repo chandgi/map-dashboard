@@ -73,7 +73,7 @@ export function MathQuizComponent({ quizState: initialQuizState, onQuizComplete,
       timeSpent,
     };
 
-    const newScore = quizState.score + (isCorrect ? currentQuestion.points : 0);
+    const newScore = quizState.score + (isCorrect ? (currentQuestion.points || 1) : 0);
     
     const updatedQuizState = {
       ...quizState,

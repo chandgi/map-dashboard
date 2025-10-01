@@ -30,23 +30,10 @@ export function QuizComponent({ settings, onQuizComplete, onRestart }: QuizCompo
     const generateQuestions = async () => {
       try {
         const questions = await QuizGenerator.generateQuiz(settings);
-        // Convert QuizQuestion to Question format
-        const convertedQuestions = questions.map((q) => ({
-          id: q.id,
-          type: 'multiple-choice' as const,
-          question: q.question,
-          options: q.options,
-          correctAnswer: q.correctAnswer,
-          imageUrl: q.country.flag,
-          explanation: `The correct answer is ${q.correctAnswer}`,
-          difficulty: q.difficulty,
-          category: 'geography',
-          points: q.difficulty === 'easy' ? 1 : q.difficulty === 'medium' ? 2 : 3
-        }));
         
         setQuizState(prev => ({
           ...prev,
-          questions: convertedQuestions,
+          questions: questions,
           startTime: new Date()
         }));
       } catch (error) {

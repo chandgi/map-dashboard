@@ -43,7 +43,7 @@ export function QuizCard({ question, onAnswer, questionNumber, totalQuestions }:
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Flag Display */}
-        {question.type === 'flag-to-country' && (
+        {question.type === 'flag-to-country' && question.country && (
           <div className="text-center">
             <div className="flex justify-center items-center mb-4">
               {question.country.flagFigmaUrl ? (
@@ -65,7 +65,7 @@ export function QuizCard({ question, onAnswer, questionNumber, totalQuestions }:
         )}
         
         {/* Map Display */}
-        {question.type === 'map-to-country' && (
+        {question.type === 'map-to-country' && question.country && (
           <div className="text-center">
             <div className="flex justify-center items-center mb-4">
               {question.country.mapFigmaUrl ? (
@@ -79,7 +79,7 @@ export function QuizCard({ question, onAnswer, questionNumber, totalQuestions }:
                 />
               ) : (
                 <div className="w-48 h-48 bg-gray-100 border border-gray-200 rounded flex items-center justify-center text-gray-500">
-                  Map of {question.country.name}
+                  Map of {question.country?.name || 'Country'}
                 </div>
               )}
             </div>

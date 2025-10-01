@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { QuizSetup } from '@/components/QuizSetup';
 import { MathQuizComponent } from '@/components/MathQuizComponent';
 import { MathQuizResults } from '@/components/MathQuizResults';
-import type { QuizSettings, QuizState, Question } from '@/types/quiz';
+import type { QuizSettings, QuizState, Question, QuizQuestion } from '@/types/quiz';
 
 interface MathProblem {
   id: string;
@@ -46,18 +46,17 @@ export default function MathChallenges() {
     fetchProblems();
   }, [gradeLevel]);
 
-  const convertToQuizQuestions = (mathProblems: MathProblem[], count: number): Question[] => {
+  const convertToQuizQuestions = (mathProblems: MathProblem[], count: number): QuizQuestion[] => {
     return mathProblems.slice(0, count).map(problem => ({
       id: problem.id,
-      type: problem.type,
+      type: problem.type as 'multiple-choice',
       question: problem.question,
       options: problem.options,
       correctAnswer: problem.correctAnswer,
-      imageUrl: undefined,
-      explanation: problem.explanation,
       difficulty: problem.difficulty,
       category: problem.category,
       points: problem.points,
+      explanation: problem.explanation,
     }));
   };
 
