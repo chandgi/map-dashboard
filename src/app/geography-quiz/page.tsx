@@ -3,14 +3,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { CheckCircle, XCircle, RotateCcw, Home, Shuffle } from 'lucide-react';
+import { CheckCircle, XCircle, RotateCcw, Home } from 'lucide-react';
 import Link from 'next/link';
 
 interface QuizItem {
   id: string;
   capital: string;
   country: string;
-  countryCode?: string;
 }
 
 interface Connection {
@@ -19,10 +18,18 @@ interface Connection {
   isCorrect?: boolean;
 }
 
+const QUIZ_DATA: QuizItem[] = [
+  { id: '1', capital: 'Washington D.C.', country: 'United States' },
+  { id: '2', capital: 'Ottawa', country: 'Canada' },
+  { id: '3', capital: 'Mexico City', country: 'Mexico' },
+  { id: '4', capital: 'Paris', country: 'France' },
+  { id: '5', capital: 'Rome', country: 'Italy' },
+  { id: '6', capital: 'Brasilia', country: 'Brazil' },
+  { id: '7', capital: 'Cairo', country: 'Egypt' },
+  { id: '8', capital: 'Canberra', country: 'Australia' },
+];
+
 export default function GeographyQuizPage() {
-  const [quizData, setQuizData] = useState<QuizItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [connections, setConnections] = useState<Connection[]>([]);
   const [dragging, setDragging] = useState<string | null>(null);
   const [dragStart, setDragStart] = useState<{x: number, y: number} | null>(null);
@@ -34,65 +41,10 @@ export default function GeographyQuizPage() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Shuffle the right column for the quiz
-  const [shuffledCountries, setShuffledCountries] = useState<QuizItem[]>([]);
-  
-  // Also make capitals shuffleable
-  const [shuffledCapitals, setShuffledCapitals] = useState<QuizItem[]>([]);
-
-  // Fetch quiz data from API
-  useEffect(() => {
-    const fetchQuizData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch('/api/quiz/countries-capitals');
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch quiz data');
-        }
-        
-        const data = await response.json();
-        
-        if (data.error) {
-          throw new Error(data.error);
-        }
-        
-        // Take first 8 items for the quiz, or all if less than 8
-        const quizItems = data.slice(0, Math.min(8, data.length));
-        
-        if (quizItems.length === 0) {
-          throw new Error('No quiz data available');
-        }
-        
-        setQuizData(quizItems);
-        setShuffledCapitals(quizItems);
-        setShuffledCountries([...quizItems].sort(() => Math.random() - 0.5));
-      } catch (err) {
-        console.error('Error fetching quiz data:', err);
-        setError('Failed to load quiz data. Please refresh the page to try again.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchQuizData();
-  }, []);
-
-  const shuffleItems = () => {
-    if (quizData.length === 0) return;
-    
-    // Shuffle both capitals and countries arrays
-    const shuffledCaps = [...quizData].sort(() => Math.random() - 0.5);
-    const shuffledCountriesArray = [...quizData].sort(() => Math.random() - 0.5);
-    
-    setShuffledCapitals(shuffledCaps);
-    setShuffledCountries(shuffledCountriesArray);
-    
-    // Clear existing connections when shuffling
-    setConnections([]);
-    setSelectedCapital(null);
-    setShowResults(false);
-    setScore(0);
-  };
+  const [shuffledCountries] = useState(() => {
+    const shuffled = [...QUIZ_DATA].sort(() => Math.random() - 0.5);
+    return shuffled;
+  });
 
   // Force re-render of connection lines when connections change
   useEffect(() => {
@@ -219,12 +171,12 @@ export default function GeographyQuizPage() {
 
   const checkAnswers = () => {
     const updatedConnections = connections.map(connection => {
-      const capital = quizData.find((item: QuizItem) => item.id === connection.capitalId);
-      const country = quizData.find((item: QuizItem) => item.id === connection.countryId);
+      const capital = QUIZ_DATA.find(item => item.id === connection.capitalId);
+      const country = shuffledCountries.find(item => item.id === connection.countryId);
       
       return {
         ...connection,
-        isCorrect: capital?.id === country?.id
+        isCorrect: capital?.country === country?.country
       };
     });
 
@@ -236,20 +188,9 @@ export default function GeographyQuizPage() {
 
   const resetQuiz = () => {
     setConnections([]);
-    setSelectedCapital(null);
     setShowResults(false);
     setScore(0);
     setDragging(null);
-    setDragStart(null);
-    setDragCurrent(null);
-    
-    // Re-shuffle the arrays
-    if (quizData.length > 0) {
-      const newShuffledCapitals = [...quizData].sort(() => Math.random() - 0.5);
-      const newShuffledCountries = [...quizData].sort(() => Math.random() - 0.5);
-      setShuffledCapitals(newShuffledCapitals);
-      setShuffledCountries(newShuffledCountries);
-    }
   };
 
   const getConnectionLine = (capitalId: string, countryId: string) => {
@@ -277,18 +218,9 @@ export default function GeographyQuizPage() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <h1 className="text-4xl font-bold text-gray-800">
-              Find the <span className="text-blue-600">capitals</span>
-            </h1>
-            <Button
-              onClick={shuffleItems}
-              className="ml-4 px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg flex items-center space-x-2 transition-colors"
-            >
-              <Shuffle className="w-4 h-4" />
-              <span>Shuffle</span>
-            </Button>
-          </div>
+          <h1 className="text-4xl font-bold text-gray-800 mb-2">
+            Find the <span className="text-blue-600">capitals</span>
+          </h1>
           <p className="text-gray-600 text-lg mb-2">
             Instructions: match the capital with its country and have fun!
           </p>
@@ -308,7 +240,7 @@ export default function GeographyQuizPage() {
           <div className="grid grid-cols-2 gap-6 lg:gap-8">
             {/* Left Column - Capitals */}
             <div className="space-y-2">
-              {shuffledCapitals.map((item) => {
+              {QUIZ_DATA.map((item) => {
                 const connection = connections.find(c => c.capitalId === item.id);
                 const isConnected = !!connection;
                 const isCorrect = connection?.isCorrect;
@@ -453,7 +385,7 @@ export default function GeographyQuizPage() {
           {!showResults ? (
             <Button
               onClick={checkAnswers}
-              disabled={connections.length !== quizData.length}
+              disabled={connections.length !== QUIZ_DATA.length}
               className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg disabled:opacity-50"
             >
               Check Answers
@@ -484,12 +416,12 @@ export default function GeographyQuizPage() {
               Quiz Complete! 🎉
             </h3>
             <p className="text-lg mb-2">
-              Your Score: <span className="font-bold text-blue-600">{score}/{quizData.length}</span>
+              Your Score: <span className="font-bold text-blue-600">{score}/{QUIZ_DATA.length}</span>
             </p>
             <p className="text-gray-600">
-              {score === quizData.length 
+              {score === QUIZ_DATA.length 
                 ? "Perfect! You're a geography expert! 🌟"
-                : score >= quizData.length * 0.7
+                : score >= QUIZ_DATA.length * 0.7
                 ? "Great job! Keep learning! 👏"
                 : "Good try! Practice makes perfect! 💪"
               }
