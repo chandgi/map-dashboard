@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 100">
+  <title>Flag of Argentina</title>
+  <!-- Light blue stripe -->
+  <rect width="150" height="33.33" fill="#74ACDF"/>
+  <!-- White stripe -->
+  <rect y="33.33" width="150" height="33.33" fill="#FFFFFF"/>
+  <!-- Light blue stripe -->
+  <rect y="66.66" width="150" height="33.33" fill="#74ACDF"/>
+  <!-- Sun of May -->
+  <g transform="translate(75, 50)">
+    <circle r="10" fill="#FCDD09" stroke="#F6B40E" stroke-width="0.5"/>
+    <!-- Sun rays -->
+    <g stroke="#F6B40E" stroke-width="1" fill="#FCDD09">
+      <line x1="0" y1="-15" x2="0" y2="-12"/>
+      <line x1="5.3" y1="-14.1" x2="4.2" y2="-11.3"/>
+      <line x1="10.6" y1="-10.6" x2="8.5" y2="-8.5"/>
+      <line x1="14.1" y1="-5.3" x2="11.3" y2="-4.2"/>
+      <line x1="15" y1="0" x2="12" y2="0"/>
+      <line x1="14.1" y1="5.3" x2="11.3" y2="4.2"/>
+      <line x1="10.6" y1="10.6" x2="8.5" y2="8.5"/>
+      <line x1="5.3" y1="14.1" x2="4.2" y2="11.3"/>
+      <line x1="0" y1="15" x2="0" y2="12"/>
+      <line x1="-5.3" y1="14.1" x2="-4.2" y2="11.3"/>
+      <line x1="-10.6" y1="10.6" x2="-8.5" y2="8.5"/>
+      <line x1="-14.1" y1="5.3" x2="-11.3" y2="4.2"/>
+      <line x1="-15" y1="0" x2="-12" y2="0"/>
+      <line x1="-14.1" y1="-5.3" x2="-11.3" y2="-4.2"/>
+      <line x1="-10.6" y1="-10.6" x2="-8.5" y2="-8.5"/>
+      <line x1="-5.3" y1="-14.1" x2="-4.2" y2="-11.3"/>
+    </g>
+    <!-- Sun face -->
+    <circle r="6" fill="none" stroke="#F6B40E" stroke-width="0.5"/>
+  </g>
+</svg>

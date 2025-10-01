@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 100">
+  <title>Flag of Mexico</title>
+  <rect width="50" height="100" fill="#006847"/>
+  <rect x="50" width="50" height="100" fill="#FFFFFF"/>
+  <rect x="100" width="50" height="100" fill="#CE1126"/>
+  <circle cx="75" cy="50" r="15" fill="none" stroke="#8B4513" stroke-width="2"/>
+  <text x="75" y="55" text-anchor="middle" font-family="Arial" font-size="8" fill="#8B4513">🦅</text>
+</svg>

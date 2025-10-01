@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { QuizState, QuizSettings } from '@/types/quiz';
 import { QuizGenerator, calculateScore, getScoreGrade } from '@/utils/quiz';
+import { useUser } from '@/contexts/UserContext';
 import { QuizCard } from './QuizCard';
 import { QuizResults } from './QuizResults';
 import { QuizProgress } from './QuizProgress';
@@ -14,8 +15,10 @@ interface QuizComponentProps {
 }
 
 export function QuizComponent({ settings, onQuizComplete, onRestart }: QuizComponentProps) {
+  const { updateUserStats } = useUser();
   const [quizState, setQuizState] = useState<QuizState>({
-    currentQuestion: 0,
+    settings: settings,
+    currentQuestionIndex: 0,
     score: 0,
     questions: [],
     answers: [],
@@ -27,9 +30,23 @@ export function QuizComponent({ settings, onQuizComplete, onRestart }: QuizCompo
     const generateQuestions = async () => {
       try {
         const questions = await QuizGenerator.generateQuiz(settings);
+        // Convert QuizQuestion to Question format
+        const convertedQuestions = questions.map((q, index) => ({
+          id: q.id,
+          type: 'multiple-choice' as const,
+          question: q.question,
+          options: q.options,
+          correctAnswer: q.correctAnswer,
+          imageUrl: q.country.flag,
+          explanation: `The correct answer is ${q.correctAnswer}`,
+          difficulty: q.difficulty,
+          category: 'geography',
+          points: q.difficulty === 'easy' ? 1 : q.difficulty === 'medium' ? 2 : 3
+        }));
+        
         setQuizState(prev => ({
           ...prev,
-          questions,
+          questions: convertedQuestions,
           startTime: new Date()
         }));
       } catch (error) {
@@ -42,7 +59,7 @@ export function QuizComponent({ settings, onQuizComplete, onRestart }: QuizCompo
   }, [settings]);
 
   const handleAnswer = (answer: string) => {
-    const currentQuestion = quizState.questions[quizState.currentQuestion];
+    const currentQuestion = quizState.questions[quizState.currentQuestionIndex];
     const isCorrect = answer === currentQuestion.correctAnswer;
     
     const newAnswer = {
@@ -53,7 +70,7 @@ export function QuizComponent({ settings, onQuizComplete, onRestart }: QuizCompo
 
     const newAnswers = [...quizState.answers, newAnswer];
     const newScore = isCorrect ? quizState.score + 1 : quizState.score;
-    const nextQuestion = quizState.currentQuestion + 1;
+    const nextQuestion = quizState.currentQuestionIndex + 1;
     
     if (nextQuestion >= quizState.questions.length) {
       // Quiz completed
@@ -65,12 +82,25 @@ export function QuizComponent({ settings, onQuizComplete, onRestart }: QuizCompo
         endTime: new Date()
       };
       setQuizState(finalState);
+      
+      // Update user stats
+      const correctAnswers = newAnswers.filter(a => a.isCorrect).length;
+      const totalQuestions = newAnswers.length;
+      const finalScore = (correctAnswers / totalQuestions) * 100;
+      
+      updateUserStats({
+        totalQuizzes: 1,
+        totalCorrect: correctAnswers,
+        totalQuestions: totalQuestions,
+        latestScore: finalScore
+      });
+      
       onQuizComplete(finalState);
     } else {
       // Move to next question
       setQuizState(prev => ({
         ...prev,
-        currentQuestion: nextQuestion,
+        currentQuestionIndex: nextQuestion,
         score: newScore,
         answers: newAnswers
       }));
@@ -102,12 +132,12 @@ export function QuizComponent({ settings, onQuizComplete, onRestart }: QuizCompo
     );
   }
 
-  const currentQuestion = quizState.questions[quizState.currentQuestion];
+  const currentQuestion = quizState.questions[quizState.currentQuestionIndex];
 
   return (
     <div className="max-w-2xl mx-auto">
       <QuizProgress
-        current={quizState.currentQuestion + 1}
+        current={quizState.currentQuestionIndex + 1}
         total={quizState.questions.length}
         score={quizState.score}
       />
@@ -115,7 +145,7 @@ export function QuizComponent({ settings, onQuizComplete, onRestart }: QuizCompo
       <QuizCard
         question={currentQuestion}
         onAnswer={handleAnswer}
-        questionNumber={quizState.currentQuestion + 1}
+        questionNumber={quizState.currentQuestionIndex + 1}
         totalQuestions={quizState.questions.length}
       />
     </div>

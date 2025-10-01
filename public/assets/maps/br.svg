@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150">
+  <title>Brazil Map Outline</title>
+  <!-- Brazil outline (simplified) -->
+  <path d="M 50 20 L 80 15 L 110 18 L 140 25 L 160 35 L 175 50 L 180 70 L 175 90 L 165 105 L 150 115 L 130 125 L 100 130 L 70 125 L 45 115 L 30 100 L 25 80 L 20 60 L 25 40 L 35 25 L 50 20 Z M 80 40 L 90 35 L 100 38 L 95 45 L 85 48 L 80 40 Z M 120 70 L 130 65 L 140 70 L 135 80 L 125 85 L 120 75 L 120 70 Z" 
+        fill="#228B22" 
+        stroke="#006400" 
+        stroke-width="2"/>
+  
+  <!-- Amazon River (simplified) -->
+  <path d="M 40 60 Q 80 55 120 60 Q 140 58 160 62" 
+        stroke="#4682B4" 
+        stroke-width="1.5" 
+        fill="none"/>
+  
+  <!-- Label -->
+  <text x="100" y="75" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" fill="#1A1A1A" font-weight="bold">BRAZIL</text>
+  
+  <!-- Compass rose -->
+  <g transform="translate(170, 30)">
+    <circle r="8" fill="none" stroke="#333" stroke-width="0.5"/>
+    <path d="M 0 -6 L 2 0 L 0 6 L -2 0 Z" fill="#333"/>
+    <text x="0" y="-10" text-anchor="middle" font-family="Arial, sans-serif" font-size="6" fill="#333">N</text>
+  </g>
+</svg>

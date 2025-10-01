@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 100">
+  <title>Flag of Sweden</title>
+  <rect width="150" height="100" fill="#006AA7"/>
+  <rect x="37.5" y="0" width="15" height="100" fill="#FECC00"/>
+  <rect x="0" y="42.5" width="150" height="15" fill="#FECC00"/>
+</svg>

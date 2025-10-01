@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 100">
+  <title>Flag of United Kingdom</title>
+  <!-- Background -->
+  <rect width="150" height="100" fill="#012169"/>
+  
+  <!-- White diagonals -->
+  <g stroke="#FFFFFF" stroke-width="12" fill="none">
+    <path d="M0,0 L150,100"/>
+    <path d="M150,0 L0,100"/>
+  </g>
+  
+  <!-- Red diagonals -->
+  <g stroke="#C8102E" stroke-width="8" fill="none">
+    <path d="M0,0 L150,100"/>
+    <path d="M150,0 L0,100"/>
+  </g>
+  
+  <!-- White cross -->
+  <g fill="#FFFFFF">
+    <rect x="62.5" y="0" width="25" height="100"/>
+    <rect x="0" y="37.5" width="150" height="25"/>
+  </g>
+  
+  <!-- Red cross -->
+  <g fill="#C8102E">
+    <rect x="67.5" y="0" width="15" height="100"/>
+    <rect x="0" y="42.5" width="150" height="15"/>
+  </g>
+</svg>

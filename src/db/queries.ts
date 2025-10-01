@@ -110,6 +110,7 @@ export async function getAllCapitals() {
       id: countries.id,
       name: countries.name,
       code: countries.code,
+      alpha2Code: countries.alpha2Code,
       flagEmoji: countries.flagEmoji,
     }
   })

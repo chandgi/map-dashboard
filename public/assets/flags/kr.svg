@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 100">
+  <title>Flag of South Korea</title>
+  <rect width="150" height="100" fill="#FFFFFF"/>
+  <circle cx="75" cy="50" r="20" fill="#CD2E3A"/>
+  <path d="M 75 30 A 10 10 0 0 1 75 50 A 10 10 0 0 0 75 70 A 10 10 0 0 1 75 50 A 10 10 0 0 0 75 30" fill="#0047A0"/>
+</svg>

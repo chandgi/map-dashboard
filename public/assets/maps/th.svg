@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 150">
+  <title>Thailand Map Outline</title>
+  <!-- Simplified country outline -->
+  <path d="M 50 30 L 120 25 L 160 40 L 170 80 L 140 120 L 80 130 L 40 110 L 30 70 L 50 30 Z" 
+        fill="#4A90E2" 
+        stroke="#2E5A87" 
+        stroke-width="2"/>
+  
+  <!-- Label -->
+  <text x="100" y="80" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" fill="#1A1A1A" font-weight="bold">THAILAND</text>
+</svg>

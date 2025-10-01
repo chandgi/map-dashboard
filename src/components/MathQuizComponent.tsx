@@ -4,23 +4,31 @@ import { useState, useEffect } from 'react';
 import { QuizState, Question } from '@/types/quiz';
 import { useUser } from '@/contexts/UserContext';
 import { Button } from '@/components/ui/Button';
-import { ArrowLeft, Clock, Trophy } from 'lucide-react';
+import { ArrowLeft, Clock, Trophy, Calculator } from 'lucide-react';
 
-interface StateQuizComponentProps {
+interface MathQuizComponentProps {
   quizState: QuizState;
   onQuizComplete: (finalState: QuizState) => void;
   onBackToSetup: () => void;
 }
 
-export function StateQuizComponent({ quizState: initialQuizState, onQuizComplete, onBackToSetup }: StateQuizComponentProps) {
+export function MathQuizComponent({ quizState: initialQuizState, onQuizComplete, onBackToSetup }: MathQuizComponentProps) {
   const { updateUserStats } = useUser();
   const [quizState, setQuizState] = useState<QuizState>(initialQuizState);
   const [selectedAnswer, setSelectedAnswer] = useState<string>('');
   const [showResult, setShowResult] = useState(false);
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [startTime, setStartTime] = useState<Date>(new Date());
 
   const currentQuestion = quizState.questions[quizState.currentQuestionIndex];
   const isLastQuestion = quizState.currentQuestionIndex === quizState.questions.length - 1;
+
+  useEffect(() => {
+    setStartTime(new Date());
+    if (quizState.settings.timeLimit) {
+      setTimeLeft(quizState.settings.timeLimit);
+    }
+  }, [quizState.currentQuestionIndex]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -45,12 +53,15 @@ export function StateQuizComponent({ quizState: initialQuizState, onQuizComplete
   };
 
   const handleAnswerSubmit = (answer: string) => {
+    const endTime = new Date();
+    const timeSpent = Math.round((endTime.getTime() - startTime.getTime()) / 1000);
     const isCorrect = answer === currentQuestion.correctAnswer;
+    
     const newAnswer = {
       questionId: currentQuestion.id,
       userAnswer: answer,
       isCorrect,
-      timeSpent: timeLeft ? (quizState.settings.timeLimit || 30) - timeLeft : undefined,
+      timeSpent,
     };
 
     const newScore = quizState.score + (isCorrect ? currentQuestion.points : 0);
@@ -97,7 +108,7 @@ export function StateQuizComponent({ quizState: initialQuizState, onQuizComplete
           setTimeLeft(quizState.settings.timeLimit);
         }
       }
-    }, 2000);
+    }, 2500);
   };
 
   const handleSubmit = () => {
@@ -112,10 +123,31 @@ export function StateQuizComponent({ quizState: initialQuizState, onQuizComplete
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const getResultColor = () => {
-    if (!showResult) return '';
-    const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
-    return isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50';
+  const renderMathProblem = (question: string) => {
+    // Extract numbers from the question like "234 + 156 = ?"
+    const match = question.match(/(\d+)\s*\+\s*(\d+)/);
+    if (match) {
+      const [, num1, num2] = match;
+      return (
+        <div className="bg-gray-50 rounded-2xl p-6 mb-6 border border-gray-200">
+          <div className="text-center">
+            <div className="text-4xl font-mono font-bold text-gray-800 mb-4">
+              <div className="flex items-center justify-center space-x-3">
+                <span>{num1}</span>
+                <span className="text-orange-500">+</span>
+                <span>{num2}</span>
+                <span className="text-orange-500">=</span>
+                <span className="text-blue-600">?</span>
+              </div>
+            </div>
+            <div className="text-sm text-gray-600">
+              Find the sum of these two numbers
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -134,7 +166,7 @@ export function StateQuizComponent({ quizState: initialQuizState, onQuizComplete
           
           <div className="flex items-center space-x-4">
             {timeLeft !== null && (
-              <div className="flex items-center text-orange-600">
+              <div className={`flex items-center ${timeLeft <= 10 ? 'text-red-600' : 'text-orange-600'}`}>
                 <Clock className="w-4 h-4 mr-1" />
                 {formatTime(timeLeft)}
               </div>
@@ -149,12 +181,12 @@ export function StateQuizComponent({ quizState: initialQuizState, onQuizComplete
         {/* Progress Bar */}
         <div className="mb-6">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
-            <span>Question {quizState.currentQuestionIndex + 1} of {quizState.questions.length}</span>
+            <span>Problem {quizState.currentQuestionIndex + 1} of {quizState.questions.length}</span>
             <span>{Math.round(((quizState.currentQuestionIndex + 1) / quizState.questions.length) * 100)}% Complete</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-gray-200 rounded-full h-3">
             <div 
-              className="bg-orange-500 h-2 rounded-full transition-all duration-300"
+              className="bg-gradient-to-r from-orange-400 to-orange-600 h-3 rounded-full transition-all duration-300"
               style={{ 
                 width: `${((quizState.currentQuestionIndex + 1) / quizState.questions.length) * 100}%` 
               }}
@@ -164,20 +196,26 @@ export function StateQuizComponent({ quizState: initialQuizState, onQuizComplete
 
         {/* Question Card */}
         <div className="bg-white rounded-3xl shadow-lg p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-6 text-center">
-            {currentQuestion.question}
-          </h2>
+          <div className="flex items-center justify-center mb-4">
+            <Calculator className="w-6 h-6 text-orange-500 mr-2" />
+            <h2 className="text-xl font-semibold text-gray-900">
+              Math Challenge #{quizState.currentQuestionIndex + 1}
+            </h2>
+          </div>
+
+          {/* Math Problem Display */}
+          {renderMathProblem(currentQuestion.question)}
 
           {/* Answer Options */}
-          <div className="space-y-3">
+          <div className="grid grid-cols-2 gap-3">
             {currentQuestion.options.map((option, index) => {
-              let buttonClass = `w-full p-4 rounded-xl border-2 text-left transition-all ${
+              let buttonClass = `p-4 rounded-xl border-2 text-center transition-all font-mono text-lg ${
                 selectedAnswer === option
                   ? showResult 
                     ? option === currentQuestion.correctAnswer
                       ? 'border-green-500 bg-green-50 text-green-800'
                       : 'border-red-500 bg-red-50 text-red-800'
-                    : 'border-blue-500 bg-blue-50'
+                    : 'border-orange-500 bg-orange-50 text-orange-800'
                   : showResult && option === currentQuestion.correctAnswer
                     ? 'border-green-500 bg-green-50 text-green-800'
                     : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
@@ -190,11 +228,11 @@ export function StateQuizComponent({ quizState: initialQuizState, onQuizComplete
                   disabled={showResult}
                   className={buttonClass}
                 >
-                  <div className="flex items-center">
-                    <span className="w-6 h-6 rounded-full border-2 border-current mr-3 flex items-center justify-center text-xs font-semibold">
+                  <div className="flex items-center justify-center">
+                    <span className="w-6 h-6 rounded-full border-2 border-current mr-2 flex items-center justify-center text-xs font-semibold">
                       {String.fromCharCode(65 + index)}
                     </span>
-                    {option}
+                    {parseInt(option).toLocaleString()}
                   </div>
                 </button>
               );
@@ -205,17 +243,35 @@ export function StateQuizComponent({ quizState: initialQuizState, onQuizComplete
           {!showResult && selectedAnswer && (
             <Button
               onClick={handleSubmit}
-              className="w-full mt-6 bg-orange-500 hover:bg-orange-600 text-white py-3"
+              className="w-full mt-6 bg-orange-500 hover:bg-orange-600 text-white py-3 text-lg"
             >
               Submit Answer
             </Button>
           )}
 
-          {/* Result Explanation */}
-          {showResult && currentQuestion.explanation && (
+          {/* Result Feedback */}
+          {showResult && (
             <div className="mt-6 p-4 bg-blue-50 rounded-xl border border-blue-200">
-              <h3 className="font-semibold text-blue-900 mb-2">Did you know?</h3>
-              <p className="text-blue-800 text-sm">{currentQuestion.explanation}</p>
+              <div className="flex items-center mb-2">
+                {selectedAnswer === currentQuestion.correctAnswer ? (
+                  <div className="flex items-center text-green-700">
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-sm mr-2">✓</div>
+                    <span className="font-semibold">Correct!</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center text-red-700">
+                    <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-sm mr-2">✗</div>
+                    <span className="font-semibold">Not quite right</span>
+                  </div>
+                )}
+              </div>
+              
+              {currentQuestion.explanation && (
+                <div className="text-blue-800 text-sm bg-white rounded p-3 border border-blue-200">
+                  <h4 className="font-semibold mb-1">Solution:</h4>
+                  <pre className="text-xs font-mono whitespace-pre-line">{currentQuestion.explanation}</pre>
+                </div>
+              )}
             </div>
           )}
         </div>
