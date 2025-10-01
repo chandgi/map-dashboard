@@ -1,6 +1,20 @@
 import { Api } from 'figma-api';
 
-interface FigmaAsset {
+interface FigmaNode {
+  id: string;
+  name: string;
+  children?: FigmaNode[];
+  [key: string]: unknown;
+}
+
+interface FigmaPage {
+  id: string;
+  name: string;
+  children?: FigmaNode[];
+  [key: string]: unknown;
+}
+
+export interface FigmaAsset {
   id: string;
   name: string;
   type: 'flag' | 'map';
@@ -33,7 +47,7 @@ export class FigmaAssetManager {
       const assets: FigmaAsset[] = [];
 
       // Recursively search for flag and map components
-      const searchNodes = (nodes: any[], parentName = '') => {
+      const searchNodes = (nodes: FigmaNode[]) => {
         nodes.forEach(node => {
           const nodeName = node.name.toLowerCase();
           
@@ -65,15 +79,15 @@ export class FigmaAssetManager {
 
           // Recursively search child nodes
           if (node.children) {
-            searchNodes(node.children, node.name);
+            searchNodes(node.children);
           }
         });
       };
 
       // Search through all pages
-      file.document.children.forEach((page: any) => {
+      file.document.children.forEach((page: FigmaPage) => {
         if (page.children) {
-          searchNodes(page.children, page.name);
+          searchNodes(page.children);
         }
       });
 

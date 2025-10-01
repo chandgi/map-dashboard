@@ -1,7 +1,24 @@
 import { QuizQuestion, QuizSettings, Country } from '@/types/quiz';
 
+interface ApiCountry {
+  alpha2Code: string;
+  name: string;
+  capital?: string;
+  continent?: string;
+  flagEmoji?: string;
+  population?: number;
+  area?: number;
+  flagFigmaUrl?: string;
+  mapFigmaUrl?: string;
+}
+
+interface ApiCapital {
+  name: string;
+  country: { name: string };
+}
+
 // Convert API response to app Country type
-function apiCountryToAppCountry(apiCountry: any): Country {
+function apiCountryToAppCountry(apiCountry: ApiCountry): Country {
   return {
     code: apiCountry.alpha2Code,
     name: apiCountry.name,
@@ -104,17 +121,17 @@ export class QuizGenerator {
   private static async getRandomWrongAnswers(correctCountry: Country, count: number): Promise<string[]> {
     const countriesResponse = await fetch('/api/countries?count=50');
     const { countries: allCountries } = await countriesResponse.json();
-    const otherCountries = allCountries.filter((c: any) => c.alpha2Code !== correctCountry.code);
+    const otherCountries = allCountries.filter((c: ApiCountry) => c.alpha2Code !== correctCountry.code);
     const shuffled = otherCountries.sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, count).map((c: any) => c.name);
+    return shuffled.slice(0, count).map((c: ApiCountry) => c.name);
   }
 
   private static async getRandomWrongCapitals(correctCountry: Country, count: number): Promise<string[]> {
     const capitalsResponse = await fetch('/api/capitals');
     const { capitals: allCapitals } = await capitalsResponse.json();
-    const otherCapitals = allCapitals.filter((c: any) => c.country.name !== correctCountry.name);
+    const otherCapitals = allCapitals.filter((c: ApiCapital) => c.country.name !== correctCountry.name);
     const shuffled = otherCapitals.sort(() => Math.random() - 0.5);
-    return shuffled.slice(0, count).map((c: any) => c.name);
+    return shuffled.slice(0, count).map((c: ApiCapital) => c.name);
   }
 }
 

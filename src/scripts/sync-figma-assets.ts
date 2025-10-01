@@ -3,7 +3,7 @@ config({ path: '.env.local' });
 
 import { db } from '../db/index';
 import { countries } from '../db/schema';
-import { createFigmaAssetManager } from '../utils/figma';
+import { createFigmaAssetManager, type FigmaAsset } from '../utils/figma';
 import { eq } from 'drizzle-orm';
 
 async function syncFigmaAssets() {
@@ -43,7 +43,7 @@ async function syncFigmaAssets() {
         acc[asset.countryCode].maps.push(asset);
       }
       return acc;
-    }, {} as Record<string, { flags: any[], maps: any[] }>);
+    }, {} as Record<string, { flags: FigmaAsset[], maps: FigmaAsset[] }>);
 
     // Update database with Figma URLs
     console.log('💾 Updating database with Figma URLs...');
@@ -55,7 +55,7 @@ async function syncFigmaAssets() {
 
       if (flagUrl || mapUrl) {
         try {
-          const updateData: any = {};
+          const updateData: { flagFigmaUrl?: string; mapFigmaUrl?: string } = {};
           if (flagUrl) updateData.flagFigmaUrl = flagUrl;
           if (mapUrl) updateData.mapFigmaUrl = mapUrl;
 
