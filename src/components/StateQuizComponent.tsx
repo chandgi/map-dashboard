@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { QuizState, Question } from '@/types/quiz';
+import { useState, useEffect, useCallback } from 'react';
+import { QuizState } from '@/types/quiz';
 import { useUser } from '@/contexts/UserContext';
 import { Button } from '@/components/ui/Button';
 import { ArrowLeft, Clock, Trophy } from 'lucide-react';
@@ -22,6 +22,13 @@ export function StateQuizComponent({ quizState: initialQuizState, onQuizComplete
   const currentQuestion = quizState.questions[quizState.currentQuestionIndex];
   const isLastQuestion = quizState.currentQuestionIndex === quizState.questions.length - 1;
 
+  const handleTimeUp = useCallback(() => {
+    if (!showResult && selectedAnswer === '') {
+      // This will trigger the auto-submit when time runs out
+      setSelectedAnswer('__TIME_UP__'); // Special marker for timeout
+    }
+  }, [showResult, selectedAnswer]);
+
   useEffect(() => {
     let timer: NodeJS.Timeout;
     if (timeLeft !== null && timeLeft > 0 && !showResult) {
@@ -30,13 +37,14 @@ export function StateQuizComponent({ quizState: initialQuizState, onQuizComplete
       handleTimeUp();
     }
     return () => clearTimeout(timer);
-  }, [timeLeft, showResult]);
+  }, [timeLeft, showResult, handleTimeUp]);
 
-  const handleTimeUp = () => {
-    if (!showResult && selectedAnswer === '') {
-      handleAnswerSubmit(''); // Submit empty answer when time runs out
+  // Handle timeout auto-submit
+  useEffect(() => {
+    if (selectedAnswer === '__TIME_UP__') {
+      handleAnswerSubmit('__TIME_UP__');
     }
-  };
+  }, [selectedAnswer]);
 
   const handleAnswerSelect = (answer: string) => {
     if (!showResult) {
@@ -45,10 +53,11 @@ export function StateQuizComponent({ quizState: initialQuizState, onQuizComplete
   };
 
   const handleAnswerSubmit = (answer: string) => {
-    const isCorrect = answer === currentQuestion.correctAnswer;
+    const actualAnswer = answer === '__TIME_UP__' ? '' : answer;
+    const isCorrect = actualAnswer === currentQuestion.correctAnswer;
     const newAnswer = {
       questionId: currentQuestion.id,
-      userAnswer: answer,
+      userAnswer: actualAnswer,
       isCorrect,
       timeSpent: timeLeft ? (quizState.settings.timeLimit || 30) - timeLeft : undefined,
     };
@@ -100,22 +109,16 @@ export function StateQuizComponent({ quizState: initialQuizState, onQuizComplete
     }, 2000);
   };
 
-  const handleSubmit = () => {
-    if (selectedAnswer) {
-      handleAnswerSubmit(selectedAnswer);
-    }
-  };
-
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const getResultColor = () => {
-    if (!showResult) return '';
-    const isCorrect = selectedAnswer === currentQuestion.correctAnswer;
-    return isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50';
+  const handleSubmit = () => {
+    if (selectedAnswer && selectedAnswer !== '__TIME_UP__') {
+      handleAnswerSubmit(selectedAnswer);
+    }
   };
 
   return (
@@ -171,7 +174,7 @@ export function StateQuizComponent({ quizState: initialQuizState, onQuizComplete
           {/* Answer Options */}
           <div className="space-y-3">
             {currentQuestion.options.map((option, index) => {
-              let buttonClass = `w-full p-4 rounded-xl border-2 text-left transition-all ${
+              const buttonClass = `w-full p-4 rounded-xl border-2 text-left transition-all ${
                 selectedAnswer === option
                   ? showResult 
                     ? option === currentQuestion.correctAnswer

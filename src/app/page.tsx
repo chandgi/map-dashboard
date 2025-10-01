@@ -9,7 +9,7 @@ import { WelcomeModal } from '@/components/WelcomeModal';
 import { UserProfile } from '@/components/UserProfile';
 import { LandingPage } from '@/components/LandingPage';
 import { useUser } from '@/contexts/UserContext';
-import { Globe, Flag, MapPin, Star, Calculator, User, LogOut } from 'lucide-react';
+// Removed unused icon imports
 
 type AppState = 'menu' | 'setup' | 'quiz' | 'results';
 

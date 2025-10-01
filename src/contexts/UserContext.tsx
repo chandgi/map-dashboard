@@ -17,12 +17,19 @@ export interface User {
   };
 }
 
+interface QuizResults {
+  totalQuizzes: number;
+  totalCorrect: number;
+  totalQuestions: number;
+  latestScore: number;
+}
+
 interface UserContextType {
   user: User | null;
   login: (username: string, email?: string) => void;
   loginAsGuest: () => void;
   logout: () => void;
-  updateUserStats: (quizResults: any) => void;
+  updateUserStats: (quizResults: QuizResults) => void;
   isLoading: boolean;
 }
 
@@ -37,7 +44,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const savedUser = localStorage.getItem('quiz-app-user');
     if (savedUser) {
       try {
-        const parsedUser = JSON.parse(savedUser);
+        const parsedUser = JSON.parse(savedUser) as User;
         parsedUser.createdAt = new Date(parsedUser.createdAt);
         setUser(parsedUser);
       } catch (error) {
@@ -94,27 +101,25 @@ export function UserProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('quiz-app-user');
   };
 
-  const updateUserStats = (quizResults: any) => {
-    if (!user) return;
+  const updateUserStats = (quizResults: QuizResults) => {
+    if (!user || !user.stats) return;
 
-    const correctAnswers = quizResults.answers.filter((a: any) => a.isCorrect).length;
-    const totalQuestions = quizResults.questions.length;
-    const quizScore = (correctAnswers / totalQuestions) * 100;
-
-    const updatedStats = {
-      totalQuizzes: (user.stats?.totalQuizzes || 0) + 1,
-      totalCorrect: (user.stats?.totalCorrect || 0) + correctAnswers,
-      totalQuestions: (user.stats?.totalQuestions || 0) + totalQuestions,
+    const newStats = {
+      totalQuizzes: user.stats.totalQuizzes + quizResults.totalQuizzes,
+      totalCorrect: user.stats.totalCorrect + quizResults.totalCorrect,
+      totalQuestions: user.stats.totalQuestions + quizResults.totalQuestions,
       averageScore: 0, // Will be calculated below
-      bestScore: Math.max(user.stats?.bestScore || 0, quizScore),
+      bestScore: Math.max(user.stats.bestScore, quizResults.latestScore),
     };
 
-    // Calculate average score
-    updatedStats.averageScore = (updatedStats.totalCorrect / updatedStats.totalQuestions) * 100;
+    // Calculate new average score
+    if (newStats.totalQuestions > 0) {
+      newStats.averageScore = (newStats.totalCorrect / newStats.totalQuestions) * 100;
+    }
 
     const updatedUser = {
       ...user,
-      stats: updatedStats
+      stats: newStats
     };
 
     setUser(updatedUser);

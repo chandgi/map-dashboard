@@ -47,7 +47,7 @@ export default function CountryIcon({
             setLoading(false);
             return;
           }
-        } catch (localErr) {
+        } catch {
           console.log(`Local file not found: ${localPath}, trying Figma API`);
         }
         

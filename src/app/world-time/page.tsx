@@ -547,7 +547,7 @@ export default function WorldTimePage() {
                     <div className="font-semibold text-orange-700 mb-1">🌍 Time Zones</div>
                     <div className="text-orange-600 text-xs">
                       Earth has 24 time zones, each roughly 15° of longitude apart. 
-                      This helps coordinate time globally based on the sun's position.
+                      This helps coordinate time globally based on the sun&apos;s position.
                     </div>
                   </div>
                   
@@ -615,7 +615,7 @@ export default function WorldTimePage() {
                   ) : (
                     <div>
                       <Search className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                      <p>No time zones found matching "{searchTerm}"</p>
+                      <p>No time zones found matching &quot;{searchTerm}&quot;</p>
                     </div>
                   )}
                 </div>

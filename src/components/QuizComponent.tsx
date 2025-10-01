@@ -31,7 +31,7 @@ export function QuizComponent({ settings, onQuizComplete, onRestart }: QuizCompo
       try {
         const questions = await QuizGenerator.generateQuiz(settings);
         // Convert QuizQuestion to Question format
-        const convertedQuestions = questions.map((q, index) => ({
+        const convertedQuestions = questions.map((q) => ({
           id: q.id,
           type: 'multiple-choice' as const,
           question: q.question,

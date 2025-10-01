@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useUser } from '@/contexts/UserContext';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
-import { Trophy, Target, TrendingUp, Calendar, LogOut, User, Clock, Globe } from 'lucide-react';
+import { Trophy, Target, TrendingUp, LogOut, User, Clock, Globe } from 'lucide-react';
 
 interface UserProfileProps {
   onClose: () => void;
@@ -15,8 +15,6 @@ export function UserProfile({ onClose }: UserProfileProps) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showWorldTime, setShowWorldTime] = useState(false);
 
-  if (!user) return null;
-
   // Update time every second
   useEffect(() => {
     const timer = setInterval(() => {
@@ -25,6 +23,8 @@ export function UserProfile({ onClose }: UserProfileProps) {
 
     return () => clearInterval(timer);
   }, []);
+
+  if (!user) return null;
 
   const handleLogout = () => {
     logout();
@@ -172,7 +172,7 @@ export function UserProfile({ onClose }: UserProfileProps) {
                   </div>
                   <div className="text-xs text-blue-600">
                     Earth has 24 time zones, each roughly 15° of longitude apart. 
-                    When it's noon in London, it's midnight in New Zealand!
+                    When it&apos;s noon in London, it&apos;s midnight in New Zealand!
                   </div>
                 </div>
               </div>

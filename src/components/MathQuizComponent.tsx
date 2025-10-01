@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { QuizState, Question } from '@/types/quiz';
+import { useState, useEffect, useCallback } from 'react';
+import { QuizState } from '@/types/quiz';
 import { useUser } from '@/contexts/UserContext';
 import { Button } from '@/components/ui/Button';
 import { ArrowLeft, Clock, Trophy, Calculator } from 'lucide-react';
@@ -28,7 +28,14 @@ export function MathQuizComponent({ quizState: initialQuizState, onQuizComplete,
     if (quizState.settings.timeLimit) {
       setTimeLeft(quizState.settings.timeLimit);
     }
-  }, [quizState.currentQuestionIndex]);
+  }, [quizState.currentQuestionIndex, quizState.settings.timeLimit]);
+
+  const handleTimeUp = useCallback(() => {
+    if (!showResult && selectedAnswer === '') {
+      // This will trigger the auto-submit when time runs out
+      setSelectedAnswer('__TIME_UP__'); // Special marker for timeout
+    }
+  }, [showResult, selectedAnswer]);
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -38,13 +45,14 @@ export function MathQuizComponent({ quizState: initialQuizState, onQuizComplete,
       handleTimeUp();
     }
     return () => clearTimeout(timer);
-  }, [timeLeft, showResult]);
+  }, [timeLeft, showResult, handleTimeUp]);
 
-  const handleTimeUp = () => {
-    if (!showResult && selectedAnswer === '') {
-      handleAnswerSubmit(''); // Submit empty answer when time runs out
+  // Handle timeout auto-submit
+  useEffect(() => {
+    if (selectedAnswer === '__TIME_UP__') {
+      handleAnswerSubmit('__TIME_UP__');
     }
-  };
+  }, [selectedAnswer]);
 
   const handleAnswerSelect = (answer: string) => {
     if (!showResult) {
@@ -53,13 +61,14 @@ export function MathQuizComponent({ quizState: initialQuizState, onQuizComplete,
   };
 
   const handleAnswerSubmit = (answer: string) => {
+    const actualAnswer = answer === '__TIME_UP__' ? '' : answer;
     const endTime = new Date();
     const timeSpent = Math.round((endTime.getTime() - startTime.getTime()) / 1000);
-    const isCorrect = answer === currentQuestion.correctAnswer;
+    const isCorrect = actualAnswer === currentQuestion.correctAnswer;
     
     const newAnswer = {
       questionId: currentQuestion.id,
-      userAnswer: answer,
+      userAnswer: actualAnswer,
       isCorrect,
       timeSpent,
     };
@@ -209,7 +218,7 @@ export function MathQuizComponent({ quizState: initialQuizState, onQuizComplete,
           {/* Answer Options */}
           <div className="grid grid-cols-2 gap-3">
             {currentQuestion.options.map((option, index) => {
-              let buttonClass = `p-4 rounded-xl border-2 text-center transition-all font-mono text-lg ${
+              const buttonClass = `p-4 rounded-xl border-2 text-center transition-all font-mono text-lg ${
                 selectedAnswer === option
                   ? showResult 
                     ? option === currentQuestion.correctAnswer

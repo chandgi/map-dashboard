@@ -5,8 +5,8 @@
  * Creates professional country flags and maps following BRIX Agency design patterns
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
 
 // Define asset directories
 const ASSETS_DIR = path.join(__dirname, '../../public/assets');
